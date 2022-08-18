@@ -1,0 +1,8 @@
+# ignore obj, symbols, debuggewr memdumps (txt), dependency files
+*.o
+*.dSYM
+*.txt
+*.d
+doc
+game-demo
+ncurses-game-engine
