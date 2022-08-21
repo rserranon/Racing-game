@@ -54,6 +54,8 @@ int ConsoleGameEngine::ConstructConsole(int x, int y, int width, int height, boo
 		init_pair(PAIR_GREEN_BLACK, COLOR_GREEN, COLOR_BLACK);
 		init_pair(PAIR_WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
 		init_pair(PAIR_GRAY_BLACK, COLOR_GRAY, COLOR_BLACK);
+		init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
+		init_pair(PAIR_GREEN_LIGHT_BLACK, COLOR_GREEN_LIGHT, COLOR_BLACK);
 
     move(0,3);
     printw("[ConsoleY:%d , ", lnConsoleY);
@@ -116,6 +118,34 @@ int ConsoleGameEngine::ConstructConsole(int x, int y, int width, int height, boo
     wrefresh(m_pWindow);
   }
 
+
+  void ConsoleGameEngine::DrawWString(int x, int y, std::wstring wstr, int color)
+  {
+    CHAR_INFO *ptr;
+    ptr = m_pBufferScreen + (y * m_nScreenWidth + x);
+    for (int i = 0; i < wstr.length(); i++)
+    {
+        ptr->utf8char = wstr[i];
+        ptr->Attributes = color;
+        ptr++;
+    }
+  }
+
+  void ConsoleGameEngine::DrawWStringAlpha(int x, int y, std::wstring wstr, int color)
+  {
+    CHAR_INFO *ptr;
+    ptr = m_pBufferScreen + (y * m_nScreenWidth + x);
+    for (int i = 0; i < wstr.length(); i++)
+    {
+        if (wstr[i] != L' ')
+        {
+          ptr->utf8char = wstr[i];
+          ptr->Attributes = color;
+        }
+        ptr++;
+    }
+  }
+
   void ConsoleGameEngine::print_str(std::string str, int x, int y, int color)
   {
     CHAR_INFO *ptr;
@@ -145,6 +175,9 @@ int ConsoleGameEngine::ConstructConsole(int x, int y, int width, int height, boo
 
   void ConsoleGameEngine::GameThread()
   {
+    if (!OnUserCreate())
+			m_bAtomicActive = false;
+
     auto tp1 = std::chrono::system_clock::now();
     auto tp2 = std::chrono::system_clock::now();
 
@@ -175,7 +208,7 @@ int ConsoleGameEngine::ConstructConsole(int x, int y, int width, int height, boo
       int x_tit = (int)(m_nScreenWidth / 2 - ss.str().length()/2);
       mvwaddstr(m_pWindow, m_nScreenHeight-1, x_tit, ss.str().c_str());
 
-      if (!OnUserUpdate())   // if userUpdate fails
+      if (!OnUserUpdate(fElapsedTime))   // if userUpdate fails
         m_bAtomicActive = false;
 
       this->DisplayFrame();

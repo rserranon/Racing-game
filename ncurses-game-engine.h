@@ -8,7 +8,7 @@
 
 
 #define COLOR_GRAY 8
-
+#define COLOR_GREEN_LIGHT 10
 enum ColourPairs
 	{
 		PAIR_RED_BLACK = 1,
@@ -16,7 +16,9 @@ enum ColourPairs
 		PAIR_BLUE_BLACK,
 		PAIR_GREEN_BLACK,
 		PAIR_WHITE_BLACK,
-    PAIR_GRAY_BLACK
+    PAIR_GRAY_BLACK,
+    PAIR_CYAN_BLACK,
+    PAIR_GREEN_LIGHT_BLACK
 	};
 
 typedef struct _CHAR_INFO {
@@ -35,6 +37,9 @@ class ConsoleGameEngine
 
     virtual void Draw(int y, int x, wchar_t wc = 0x2588, int color = PAIR_WHITE_BLACK);
 
+    void DrawWString(int x, int y, std::wstring str, int color = PAIR_WHITE_BLACK);
+
+    void DrawWStringAlpha(int x, int y, std::wstring str, int color = PAIR_WHITE_BLACK);
 
     void print_str(std::string, int x, int y, int color = PAIR_WHITE_BLACK);
 
@@ -59,7 +64,7 @@ class ConsoleGameEngine
 	  static std::mutex m_muxGame;
 
     virtual bool OnUserCreate() = 0;
-    virtual bool OnUserUpdate() = 0;
+    virtual bool OnUserUpdate(float fElapsedTime) = 0;
 
   private:
     void GameThread();

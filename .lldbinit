@@ -1,0 +1,4 @@
+# LLDB configuration to launch a terminal to debug Racing-game
+target create Racing-game
+process launch --tty
+br set -f Racing-game.cpp -l 80 -c 'nTracSection==3'
