@@ -1,4 +1,7 @@
 # LLDB configuration to launch a terminal to debug Racing-game
 target create Racing-game
 process launch --tty
+b main
+breakpoint set -file Racing-game -name OnUserCreate
+breakpoint set -file Racing-game -name OnUserUpdate
 br set -f Racing-game.cpp -l 80 -c 'nTracSection==3'

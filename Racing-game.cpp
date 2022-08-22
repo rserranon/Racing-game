@@ -1,8 +1,10 @@
 #include "ncurses-game-engine.h"
+#include <cmath>
 #include <math.h>
 #include <vector>
 #include <utility>
 #include <string>
+#include <list>
 
 class RacingGame: public ConsoleGameEngine
 {
@@ -22,6 +24,7 @@ class RacingGame: public ConsoleGameEngine
     float fCurrentLapTime = 0.0f;
 
     std::vector<std::pair<float, float>> vTrack;
+    std::list<float>                     lLapTimes;
 
   protected:
     bool OnUserCreate()
@@ -40,29 +43,31 @@ class RacingGame: public ConsoleGameEngine
 
       for (auto t: vTrack)
         fTrackDistance += t.second;
+      lLapTimes = {0,0,0,0,0};
+
       return true;
     }
 
     virtual bool OnUserUpdate(float fElapsedTime)
     {
 
-      fElapsedTime *= 4;
+      //fElapsedTime *= 4;
       switch (m_nKeyPressed) {
         case KEY_UP:
-          fSpeed += 2.0f * fElapsedTime;
+          fSpeed += 15.0f * fElapsedTime;
           break;
         case KEY_DOWN:
-          fSpeed -= 1.0f * fElapsedTime;
+          fSpeed -= 5.0f * fElapsedTime;
           break;
         case KEY_LEFT:
-          fPlayerCurvature -= 1.9 * fElapsedTime * (1.0f - fSpeed / 2.0f);
+          fPlayerCurvature -= 28 * fElapsedTime * (1.0f - fSpeed / 2.0f);
           break;
         case KEY_RIGHT:
-          fPlayerCurvature += 1.9 * fElapsedTime * (1.0f - fSpeed / 2.0f);
+          fPlayerCurvature += 28 * fElapsedTime * (1.0f - fSpeed / 2.0f);
           break;
       }
-      if (fabs(fPlayerCurvature - fTrackCurvature)  >= 0.8f)
-        fSpeed -= 5.0f * fElapsedTime;
+      if (fabs(fPlayerCurvature - fTrackCurvature)  >= 0.65)
+        fSpeed -= 3.0f * fElapsedTime;
 
       if (fSpeed < 0.0f) fSpeed = 0.0f;
       if (fSpeed > 1.0f) fSpeed = 1.0f;
@@ -77,6 +82,8 @@ class RacingGame: public ConsoleGameEngine
 
       if (fDistance > fTrackDistance){
         fDistance -= fTrackDistance;
+        lLapTimes.push_front(fCurrentLapTime);
+        lLapTimes.pop_back();
         fCurrentLapTime = 0.0;;
       }
 
@@ -97,6 +104,18 @@ class RacingGame: public ConsoleGameEngine
       // Accumulate track curvature
       fTrackCurvature += (fCurvature) * fElapsedTime * fSpeed;
 
+      // Draw Sky
+      for (int y = 0; y < m_nScreenHeight / 2; y++ )
+        for (int x = 0; x < m_nScreenWidth; x++)
+          Draw(y, x, y < m_nScreenHeight / 4 ? PIXEL_HALF : PIXEL_SOLID, PAIR_BLUE_BLACK);
+
+      // Draw mountains
+      for (int x = 0; x < m_nScreenWidth; x++)
+      {
+        int nHillHeight = (int)fabs((sinf(x * 0.01f + fTrackCurvature) * 16.0f));
+        for (int y = (m_nScreenHeight / 2) - nHillHeight; y < m_nScreenHeight / 2; y++)
+          Draw(y, x, PIXEL_SOLID, PAIR_CYAN_BLACK);
+      }
 
       for (int y = 0; y < m_nScreenHeight / 2; y++ )
         for (int x = 0; x < m_nScreenWidth; x++)
@@ -125,15 +144,15 @@ class RacingGame: public ConsoleGameEngine
             int nRoadColour = (nTracSection - 1 == 0) ? PAIR_WHITE_BLACK : PAIR_GRAY_BLACK;
 
             if (x >= 0 && x < nLeftGrass)
-              Draw(nRow, x, 0x2588, nGrassColour );
+              Draw(nRow, x, PIXEL_SOLID, nGrassColour );
             if (x >= nLeftGrass && x < nLeftClip)
-              Draw(nRow, x, 0x2588, nClipColour);
+              Draw(nRow, x, PIXEL_SOLID, nClipColour);
             if (x >= nLeftClip && x < nRightClip)
-              Draw(nRow, x, 0x2588, nRoadColour);
+              Draw(nRow, x, PIXEL_SOLID, nRoadColour);
             if (x >= nRightClip && x < nRightGrass)
-              Draw(nRow, x, 0x2588, nClipColour);
+              Draw(nRow, x, PIXEL_SOLID, nClipColour);
             if (x >= nRightGrass && x < m_nScreenWidth)
-              Draw(nRow, x, 0x2588, nGrassColour);
+              Draw(nRow, x, PIXEL_SOLID, nGrassColour);
 
         }
             // Draw Car
@@ -167,6 +186,13 @@ class RacingGame: public ConsoleGameEngine
             };
 
             DrawWString(1, 10, L"CurrentLapTime  : " + disp_time(fCurrentLapTime));
+            DrawWString(1, 11, L"Best Laps       : ");
+            int line = 12;
+            for (auto lap: lLapTimes)
+            {
+              DrawWString(19, line, disp_time(lap));
+              line++;
+            }
 
       return true;
     }
@@ -181,7 +207,6 @@ int main(){
   status = game.ConstructConsole(1, 1, 160, 63, true, "Racing Game" );
   if (status == 0)
   {
-      game.print_str("hello world", 1, 1, PAIR_YELLOW_BLACK);
       game.Start();
   } else {
     return -1;

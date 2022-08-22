@@ -6,9 +6,11 @@
 #include <atomic>
 #include <condition_variable>
 
-
-#define COLOR_GRAY 8
+#define PIXEL_SOLID 0x2588
+#define PIXEL_HALF  0x2592
+#define COLOR_GRAY         8
 #define COLOR_GREEN_LIGHT 10
+#define COLOR_BLUE_DARK   17
 enum ColourPairs
 	{
 		PAIR_RED_BLACK = 1,
@@ -18,7 +20,8 @@ enum ColourPairs
 		PAIR_WHITE_BLACK,
     PAIR_GRAY_BLACK,
     PAIR_CYAN_BLACK,
-    PAIR_GREEN_LIGHT_BLACK
+    PAIR_GREEN_LIGHT_BLACK,
+    PAIR_BLUE_DARK_BLACK
 	};
 
 typedef struct _CHAR_INFO {
@@ -69,4 +72,3 @@ class ConsoleGameEngine
   private:
     void GameThread();
 };
-

@@ -56,6 +56,7 @@ int ConsoleGameEngine::ConstructConsole(int x, int y, int width, int height, boo
 		init_pair(PAIR_GRAY_BLACK, COLOR_GRAY, COLOR_BLACK);
 		init_pair(PAIR_CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
 		init_pair(PAIR_GREEN_LIGHT_BLACK, COLOR_GREEN_LIGHT, COLOR_BLACK);
+		init_pair(PAIR_BLUE_DARK_BLACK, COLOR_BLUE_DARK, COLOR_BLACK);
 
     move(0,3);
     printw("[ConsoleY:%d , ", lnConsoleY);
